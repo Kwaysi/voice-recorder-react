@@ -17,10 +17,10 @@ export declare type RenderProps = {
     pause: Action;
     resume: Action;
     reset: Action;
+    time: Time;
 };
 declare type Props = {
     audioURL: string;
-    getTime: (t: Time) => void;
     handleReset: (e: State) => void;
     handleAudioStop: (d: AudioData) => void;
     mimeTypeToUseWhenRecording: string | null;
