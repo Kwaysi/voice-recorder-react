@@ -1,6 +1,6 @@
 import React, { Component, MouseEventHandler } from 'react';
 
-type Time = {
+export type Time = {
   h: number;
   m: number;
   s: number;
@@ -15,7 +15,7 @@ type AudioData = {
 
 type Action = MouseEventHandler<HTMLElement>;
 
-type RenderProps = {
+export type RenderProps = {
   start: Action;
   stop: Action;
   pause: Action;
@@ -42,7 +42,7 @@ type State = {
   medianotFound: boolean;
 };
 
-class Recorder extends Component<Props, State> {
+export default class Recorder extends Component<Props, State> {
   private chunks!: Blob[];
   // @ts-ignore
   private timer!: NodeJS.Timeout;
@@ -244,5 +244,3 @@ class Recorder extends Component<Props, State> {
     );
   }
 }
-
-export default Recorder;

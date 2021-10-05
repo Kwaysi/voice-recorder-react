@@ -1,5 +1,5 @@
 import { Component, MouseEventHandler } from 'react';
-declare type Time = {
+export declare type Time = {
     h: number;
     m: number;
     s: number;
@@ -11,7 +11,7 @@ declare type AudioData = {
     duration: Time;
 };
 declare type Action = MouseEventHandler<HTMLElement>;
-declare type RenderProps = {
+export declare type RenderProps = {
     start: Action;
     stop: Action;
     pause: Action;
@@ -35,7 +35,7 @@ declare type State = {
     pauseRecord: boolean;
     medianotFound: boolean;
 };
-declare class Recorder extends Component<Props, State> {
+export default class Recorder extends Component<Props, State> {
     private chunks;
     private timer;
     private mediaRecorder;
@@ -56,5 +56,5 @@ declare class Recorder extends Component<Props, State> {
     saveAudio(): void;
     render(): JSX.Element;
 }
-export default Recorder;
+export {};
 //# sourceMappingURL=index.d.ts.map
