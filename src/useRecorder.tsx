@@ -1,0 +1,179 @@
+import { useEffect, useState } from 'react';
+import { State } from '.';
+
+const emptyBlob = new Blob();
+const initialTime = { h: 0, m: 0, s: 0 };
+
+const initState = {
+  time: initialTime,
+  audios: [],
+  seconds: 0,
+  recording: false,
+  pauseRecord: false,
+  medianotFound: false,
+  audioBlob: emptyBlob,
+  audioData: {
+    url: '',
+    chunks: [],
+    blob: emptyBlob,
+    duration: initialTime,
+  },
+};
+
+let timer!: any;
+
+let chunks: Blob[] = [];
+
+let mediaRecorder!: MediaRecorder;
+
+type Props = {
+  mimeTypeToUseWhenRecording?: string;
+};
+
+export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
+  const [state, setState] = useState<State>(initState);
+
+  useEffect(() => {
+    // @ts-ignore
+    navigator.getUserMedia =
+      // @ts-ignore
+      navigator.getUserMedia ||
+      // @ts-ignore
+      navigator.msGetUserMedia ||
+      // @ts-ignore
+      navigator.mozGetUserMedia ||
+      // @ts-ignore
+      navigator.webkitGetUserMedia;
+
+    if (navigator.mediaDevices) {
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        if (mimeTypeToUseWhenRecording) {
+          mediaRecorder = new MediaRecorder(stream, {
+            mimeType: mimeTypeToUseWhenRecording,
+          });
+        } else {
+          mediaRecorder = new MediaRecorder(stream);
+        }
+        chunks = [];
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            chunks.push(e.data);
+          }
+        };
+      });
+    } else {
+      setState({ ...state, medianotFound: true });
+    }
+  }, []);
+
+  const handleAudioPause = () => {
+    clearInterval(timer);
+    mediaRecorder.pause();
+    setState({ ...state, pauseRecord: true });
+  };
+
+  const handleAudioStart = () => {
+    startTimer();
+    mediaRecorder.resume();
+    setState({ ...state, pauseRecord: false });
+  };
+
+  const countDown = () => {
+    let seconds = state.seconds + 1;
+    setState({
+      ...state,
+      time: secondsToTime(seconds),
+      seconds: seconds,
+    });
+  };
+
+  const secondsToTime = (secs: number) => {
+    let hours = Math.floor(secs / (60 * 60));
+
+    let divisor_for_minutes = secs % (60 * 60);
+    let minutes = Math.floor(divisor_for_minutes / 60);
+
+    let divisor_for_seconds = divisor_for_minutes % 60;
+    let seconds = Math.ceil(divisor_for_seconds);
+
+    let obj = {
+      h: hours,
+      m: minutes,
+      s: seconds,
+    };
+    return obj;
+  };
+
+  const startTimer = () => {
+    timer = setInterval(countDown, 1000);
+  };
+
+  const startRecording = () => {
+    // wipe old data chunks
+    chunks = [];
+    // start recorder with 10ms buffer
+    mediaRecorder.start(10);
+    startTimer();
+    // say that we're recording
+    setState({ ...state, recording: true });
+  };
+
+  const stopRecording = () => {
+    clearInterval(timer);
+    setState({
+      ...state,
+      time: initialTime,
+    });
+    // stop the recorder
+    mediaRecorder.stop();
+    // say that we're not recording
+    setState({ ...state, recording: false, pauseRecord: false });
+    // save the video to memory
+    saveAudio();
+  };
+
+  const handleReset = () => {
+    if (state.recording) {
+      stopRecording();
+    }
+    setState({
+      ...state,
+      seconds: 0,
+      audios: [],
+      recording: false,
+      medianotFound: false,
+      time: initialTime,
+      audioBlob: emptyBlob,
+    });
+  };
+
+  const saveAudio = () => {
+    // convert saved chunks to blob
+    const blob = new Blob(chunks, { type: 'audio/*' });
+    // generate video url from blob
+    const audioURL = window.URL.createObjectURL(blob);
+    // append videoURL to list of saved videos for rendering
+    const audios = [audioURL];
+    setState({
+      ...state,
+      audios,
+      audioBlob: blob,
+      audioData: {
+        blob: blob,
+        url: audioURL,
+        chunks: chunks,
+        duration: state.time,
+      },
+    });
+  };
+
+  return {
+    time: state.time,
+    reset: handleReset,
+    stop: stopRecording,
+    data: state.audioData,
+    start: startRecording,
+    pause: handleAudioPause,
+    resume: handleAudioStart,
+  };
+}

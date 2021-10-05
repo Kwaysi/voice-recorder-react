@@ -1,4 +1,5 @@
-import React, { Component, MouseEventHandler } from 'react';
+import React, { Component } from 'react';
+import useRecorder from './useRecorder';
 
 export type Time = {
   h: number;
@@ -12,6 +13,8 @@ export type AudioData = {
   chunks: Blob[];
   duration: Time;
 };
+
+export { useRecorder };
 
 type Action = () => void;
 
@@ -34,7 +37,7 @@ type Props = {
   Render: (props: RenderProps) => JSX.Element;
 };
 
-type State = {
+export type State = {
   time: Time;
   seconds: number;
   audioBlob: Blob;
@@ -126,13 +129,10 @@ export default class Recorder extends Component<Props, State> {
   };
 
   startTimer() {
-    //if (this.timer === 0 && this.state.seconds > 0) {
     this.timer = setInterval(this.countDown, 1000);
-    //}
   }
 
   countDown() {
-    // Remove one second, set state so a re-render happens.
     let seconds = this.state.seconds + 1;
     this.setState({
       time: this.secondsToTime(seconds),

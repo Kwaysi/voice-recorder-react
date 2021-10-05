@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import useRecorder from './useRecorder';
 export declare type Time = {
     h: number;
     m: number;
@@ -10,6 +11,7 @@ export declare type AudioData = {
     chunks: Blob[];
     duration: Time;
 };
+export { useRecorder };
 declare type Action = () => void;
 export declare type RenderProps = {
     time: Time;
@@ -32,7 +34,7 @@ declare type Props = {
     mimeTypeToUseWhenRecording?: string | null;
     Render: (props: RenderProps) => JSX.Element;
 };
-declare type State = {
+export declare type State = {
     time: Time;
     seconds: number;
     audioBlob: Blob;
@@ -65,5 +67,4 @@ export default class Recorder extends Component<Props, State> {
     saveAudio(): void;
     render(): JSX.Element;
 }
-export {};
 //# sourceMappingURL=index.d.ts.map
