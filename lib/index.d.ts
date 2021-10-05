@@ -5,25 +5,25 @@ export declare type Time = {
     s: number;
 };
 export declare type AudioData = {
-    url: string;
     blob: Blob;
+    url: string;
     chunks: Blob[];
     duration: Time;
 };
 declare type Action = MouseEventHandler<HTMLElement>;
 export declare type RenderProps = {
-    start: Action;
-    stop: Action;
-    pause: Action;
-    resume: Action;
-    reset: Action;
     time: Time;
+    stop: Action;
+    start: Action;
+    pause: Action;
+    reset: Action;
+    resume: Action;
+    data: AudioData;
 };
 declare type Props = {
-    audioURL: string;
-    handleReset: (e: State) => void;
-    handleAudioStop: (d: AudioData) => void;
-    mimeTypeToUseWhenRecording: string | null;
+    handleReset?: (e: State) => void;
+    handleAudioStop?: (d: AudioData) => void;
+    mimeTypeToUseWhenRecording?: string | null;
     Render: (props: RenderProps) => JSX.Element;
 };
 declare type State = {
@@ -34,6 +34,7 @@ declare type State = {
     recording: boolean;
     pauseRecord: boolean;
     medianotFound: boolean;
+    audioData: AudioData;
 };
 export default class Recorder extends Component<Props, State> {
     private chunks;

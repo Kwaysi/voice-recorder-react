@@ -7,8 +7,8 @@ export type Time = {
 };
 
 export type AudioData = {
-  url: string;
   blob: Blob;
+  url: string;
   chunks: Blob[];
   duration: Time;
 };
@@ -16,19 +16,19 @@ export type AudioData = {
 type Action = MouseEventHandler<HTMLElement>;
 
 export type RenderProps = {
-  start: Action;
-  stop: Action;
-  pause: Action;
-  resume: Action;
-  reset: Action;
   time: Time;
+  stop: Action;
+  start: Action;
+  pause: Action;
+  reset: Action;
+  resume: Action;
+  data: AudioData;
 };
 
 type Props = {
-  audioURL: string;
-  handleReset: (e: State) => void;
-  handleAudioStop: (d: AudioData) => void;
-  mimeTypeToUseWhenRecording: string | null;
+  handleReset?: (e: State) => void;
+  handleAudioStop?: (d: AudioData) => void;
+  mimeTypeToUseWhenRecording?: string | null;
   Render: (props: RenderProps) => JSX.Element;
 };
 
@@ -40,6 +40,7 @@ type State = {
   recording: boolean;
   pauseRecord: boolean;
   medianotFound: boolean;
+  audioData: AudioData;
 };
 
 export default class Recorder extends Component<Props, State> {
@@ -62,6 +63,12 @@ export default class Recorder extends Component<Props, State> {
       pauseRecord: false,
       medianotFound: false,
       audioBlob: new Blob(),
+      audioData: {
+        url: '',
+        chunks: [],
+        duration: this.state.time,
+        blob: this.state.audioBlob,
+      },
     };
 
     // this.timer = 0;
@@ -199,7 +206,7 @@ export default class Recorder extends Component<Props, State> {
         audioBlob: new Blob(),
       },
       () => {
-        this.props.handleReset(this.state);
+        this.props.handleReset && this.props.handleReset(this.state);
       }
     );
   };
@@ -211,24 +218,35 @@ export default class Recorder extends Component<Props, State> {
     const audioURL = window.URL.createObjectURL(blob);
     // append videoURL to list of saved videos for rendering
     const audios = [audioURL];
-    this.setState({ audios, audioBlob: blob });
-    this.props.handleAudioStop({
-      blob: blob,
-      url: audioURL,
-      chunks: this.chunks,
-      duration: this.state.time,
+    this.setState({
+      audios,
+      audioBlob: blob,
+      audioData: {
+        blob: blob,
+        url: audioURL,
+        chunks: this.chunks,
+        duration: this.state.time,
+      },
     });
+    if (this.props.handleAudioStop)
+      this.props.handleAudioStop({
+        blob: blob,
+        url: audioURL,
+        chunks: this.chunks,
+        duration: this.state.time,
+      });
   }
 
   render() {
     const Render = this.props.Render;
-    const { medianotFound, time } = this.state;
+    const { medianotFound, time, audioData } = this.state;
 
     return (
       <div className=''>
         {!medianotFound ? (
           <Render
             time={time}
+            data={audioData}
             reset={this.handleReset}
             stop={this.stopRecording}
             start={this.startRecording}
