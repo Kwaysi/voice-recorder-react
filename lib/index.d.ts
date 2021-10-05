@@ -4,7 +4,7 @@ export declare type Time = {
     m: number;
     s: number;
 };
-declare type AudioData = {
+export declare type AudioData = {
     url: string;
     blob: Blob;
     chunks: Blob[];

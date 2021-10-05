@@ -6,7 +6,7 @@ export type Time = {
   s: number;
 };
 
-type AudioData = {
+export type AudioData = {
   url: string;
   blob: Blob;
   chunks: Blob[];
@@ -21,11 +21,11 @@ export type RenderProps = {
   pause: Action;
   resume: Action;
   reset: Action;
+  time: Time;
 };
 
 type Props = {
   audioURL: string;
-  getTime: (t: Time) => void;
   handleReset: (e: State) => void;
   handleAudioStop: (d: AudioData) => void;
   mimeTypeToUseWhenRecording: string | null;
@@ -129,13 +129,10 @@ export default class Recorder extends Component<Props, State> {
   countDown() {
     // Remove one second, set state so a re-render happens.
     let seconds = this.state.seconds + 1;
-    this.setState(
-      {
-        time: this.secondsToTime(seconds),
-        seconds: seconds,
-      },
-      () => this.props.getTime(this.state.time)
-    );
+    this.setState({
+      time: this.secondsToTime(seconds),
+      seconds: seconds,
+    });
   }
 
   secondsToTime(secs: number) {
@@ -225,12 +222,13 @@ export default class Recorder extends Component<Props, State> {
 
   render() {
     const Render = this.props.Render;
-    const { medianotFound } = this.state;
+    const { medianotFound, time } = this.state;
 
     return (
       <div className=''>
         {!medianotFound ? (
           <Render
+            time={time}
             reset={this.handleReset}
             stop={this.stopRecording}
             start={this.startRecording}
