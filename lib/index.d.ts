@@ -39,7 +39,9 @@ declare type State = {
 export default class Recorder extends Component<Props, State> {
     private chunks;
     private timer;
+    private emptyBlob;
     private mediaRecorder;
+    private initialTime;
     constructor(props: Props);
     componentDidMount(): Promise<void>;
     handleAudioPause: MouseEventHandler<HTMLElement>;
