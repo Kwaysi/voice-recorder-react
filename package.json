@@ -1,0 +1,27 @@
+{
+  "name": "voice-recorder-react",
+  "version": "1.0.1",
+  "description": "Voice recorder component for react",
+  "main": "lib/index.js",
+  "types": "lib",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "keywords": [
+    "React",
+    "recording",
+    "Voice recoder",
+    "react-voice-recorder"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Kwaysi/voice-recorder-react"
+  },
+  "author": "Kilson David",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/react": "^17.0.27",
+    "react": "^17.0.2",
+    "typescript": "^4.4.3"
+  }
+}
