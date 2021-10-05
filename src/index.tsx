@@ -47,27 +47,25 @@ export default class Recorder extends Component<Props, State> {
   private chunks!: Blob[];
   // @ts-ignore
   private timer!: NodeJS.Timeout;
+  private emptyBlob = new Blob();
   private mediaRecorder!: MediaRecorder;
+  private initialTime = { h: 0, m: 0, s: 0 };
 
   constructor(props: Props) {
     super(props);
     this.state = {
-      time: {
-        h: 0,
-        m: 0,
-        s: 0,
-      },
+      time: this.initialTime,
       audios: [],
       seconds: 0,
       recording: false,
       pauseRecord: false,
       medianotFound: false,
-      audioBlob: new Blob(),
+      audioBlob: this.emptyBlob,
       audioData: {
         url: '',
         chunks: [],
-        duration: this.state.time,
-        blob: this.state.audioBlob,
+        blob: this.emptyBlob,
+        duration: this.initialTime,
       },
     };
 
@@ -173,11 +171,7 @@ export default class Recorder extends Component<Props, State> {
   stopRecording: MouseEventHandler<HTMLElement> = (e) => {
     clearInterval(this.timer);
     this.setState({
-      time: {
-        h: 0,
-        m: 0,
-        s: 0,
-      },
+      time: this.initialTime,
     });
     e.preventDefault();
     // stop the recorder
@@ -194,16 +188,12 @@ export default class Recorder extends Component<Props, State> {
     }
     this.setState(
       {
-        time: {
-          h: 0,
-          m: 0,
-          s: 0,
-        },
         seconds: 0,
         audios: [],
         recording: false,
         medianotFound: false,
-        audioBlob: new Blob(),
+        time: this.initialTime,
+        audioBlob: this.emptyBlob,
       },
       () => {
         this.props.handleReset && this.props.handleReset(this.state);
