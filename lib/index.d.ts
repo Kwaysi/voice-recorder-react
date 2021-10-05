@@ -1,4 +1,4 @@
-import { Component, MouseEventHandler } from 'react';
+import { Component } from 'react';
 export declare type Time = {
     h: number;
     m: number;
@@ -10,7 +10,7 @@ export declare type AudioData = {
     chunks: Blob[];
     duration: Time;
 };
-declare type Action = MouseEventHandler<HTMLElement>;
+declare type Action = () => void;
 export declare type RenderProps = {
     time: Time;
     stop: Action;
@@ -19,8 +19,14 @@ export declare type RenderProps = {
     reset: Action;
     resume: Action;
     data: AudioData;
+    props?: {
+        [key: string]: any;
+    };
 };
 declare type Props = {
+    props?: {
+        [key: string]: any;
+    };
     handleReset?: (e: State) => void;
     handleAudioStop?: (d: AudioData) => void;
     mimeTypeToUseWhenRecording?: string | null;
@@ -44,8 +50,8 @@ export default class Recorder extends Component<Props, State> {
     private initialTime;
     constructor(props: Props);
     componentDidMount(): Promise<void>;
-    handleAudioPause: MouseEventHandler<HTMLElement>;
-    handleAudioStart: MouseEventHandler<HTMLElement>;
+    handleAudioPause: () => void;
+    handleAudioStart: () => void;
     startTimer(): void;
     countDown(): void;
     secondsToTime(secs: number): {
@@ -53,9 +59,9 @@ export default class Recorder extends Component<Props, State> {
         m: number;
         s: number;
     };
-    startRecording: MouseEventHandler<HTMLElement>;
-    stopRecording: MouseEventHandler<HTMLElement>;
-    handleReset: MouseEventHandler<HTMLElement>;
+    startRecording: () => void;
+    stopRecording: () => void;
+    handleReset: () => void;
     saveAudio(): void;
     render(): JSX.Element;
 }

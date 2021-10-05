@@ -13,7 +13,7 @@ export type AudioData = {
   duration: Time;
 };
 
-type Action = MouseEventHandler<HTMLElement>;
+type Action = () => void;
 
 export type RenderProps = {
   time: Time;
@@ -23,9 +23,11 @@ export type RenderProps = {
   reset: Action;
   resume: Action;
   data: AudioData;
+  props?: { [key: string]: any };
 };
 
 type Props = {
+  props?: { [key: string]: any };
   handleReset?: (e: State) => void;
   handleAudioStop?: (d: AudioData) => void;
   mimeTypeToUseWhenRecording?: string | null;
@@ -111,15 +113,13 @@ export default class Recorder extends Component<Props, State> {
     }
   }
 
-  handleAudioPause: MouseEventHandler<HTMLElement> = (e) => {
-    e.preventDefault();
+  handleAudioPause = () => {
     clearInterval(this.timer);
     this.mediaRecorder.pause();
     this.setState({ pauseRecord: true });
   };
 
-  handleAudioStart: MouseEventHandler<HTMLElement> = (e) => {
-    e.preventDefault();
+  handleAudioStart = () => {
     this.startTimer();
     this.mediaRecorder.resume();
     this.setState({ pauseRecord: false });
@@ -157,8 +157,7 @@ export default class Recorder extends Component<Props, State> {
     return obj;
   }
 
-  startRecording: MouseEventHandler<HTMLElement> = (e) => {
-    e.preventDefault();
+  startRecording = () => {
     // wipe old data chunks
     this.chunks = [];
     // start recorder with 10ms buffer
@@ -168,12 +167,11 @@ export default class Recorder extends Component<Props, State> {
     this.setState({ recording: true });
   };
 
-  stopRecording: MouseEventHandler<HTMLElement> = (e) => {
+  stopRecording = () => {
     clearInterval(this.timer);
     this.setState({
       time: this.initialTime,
     });
-    e.preventDefault();
     // stop the recorder
     this.mediaRecorder.stop();
     // say that we're not recording
@@ -182,9 +180,9 @@ export default class Recorder extends Component<Props, State> {
     this.saveAudio();
   };
 
-  handleReset: MouseEventHandler<HTMLElement> = (e) => {
+  handleReset = () => {
     if (this.state.recording) {
-      this.stopRecording(e);
+      this.stopRecording();
     }
     this.setState(
       {
@@ -237,6 +235,7 @@ export default class Recorder extends Component<Props, State> {
           <Render
             time={time}
             data={audioData}
+            props={this.props.props}
             reset={this.handleReset}
             stop={this.stopRecording}
             start={this.startRecording}
