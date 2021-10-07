@@ -6,6 +6,10 @@ Inspired by https://github.com/sivaprakashDesingu/react-voice-recorder
 
 This component decouple the UI from the recording functionality.
 
+# Demo 
+
+https://codesandbox.io/s/prod-star-sxndo
+
 # Usage
 
 This component can be used as hooks or render props
@@ -13,13 +17,15 @@ This component can be used as hooks or render props
 ## Hooks Usage
 
 ```
-import { useState, useRef } from 'react';
-import { useRecorder } from 'voice-recorder-react';
+import { useState, useRef } from "react";
+import { useRecorder } from "voice-recorder-react";
 
 function Recorder() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isRecording, setRecording] = useState(false);
-  const { start, stop, pause, resume, reset, time, data } = useRecorder();
+  const { start, stop, pause, resume, reset, time, data } = useRecorder({
+    mimeTypeToUseWhenRecording: null
+  });
 
   const startRecording = () => {
     setRecording(true);
@@ -29,15 +35,18 @@ function Recorder() {
   const stopRecording = () => {
     stop();
     setRecording(false);
-    audioRef.current.src = data.url;
+    if (audioRef.current) audioRef.current.src = data.url;
   };
 
   return (
     <>
-      <button type='button' onClick={() => (isRecording ? stopRecording() : startRecording())}>
+      <button
+        type="button"
+        onClick={() => (isRecording ? stopRecording() : startRecording())}
+      >
         start/stop
       </button>
-      <button type='button' onClick={() => (isRecording ? pause() : resume())}>
+      <button type="button" onClick={() => (isRecording ? pause() : resume())}>
         pause/resume
       </button>
 
@@ -47,7 +56,7 @@ function Recorder() {
         </p>
       )}
 
-      <audio ref={audioRef} />
+      <audio ref={audioRef} controls />
     </>
   );
 }

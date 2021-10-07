@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { State } from '.';
+import { useEffect, useState } from 'react';
 
-const emptyBlob = new Blob();
+const emptyBlob = new Blob() || '';
 const initialTime = { h: 0, m: 0, s: 0 };
 
 const initState = {
@@ -109,12 +109,9 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
   };
 
   const startRecording = () => {
-    // wipe old data chunks
     chunks = [];
-    // start recorder with 10ms buffer
     mediaRecorder.start(10);
     startTimer();
-    // say that we're recording
     setState({ ...state, recording: true });
   };
 
@@ -124,11 +121,8 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
       ...state,
       time: initialTime,
     });
-    // stop the recorder
     mediaRecorder.stop();
-    // say that we're not recording
     setState({ ...state, recording: false, pauseRecord: false });
-    // save the video to memory
     saveAudio();
   };
 
@@ -139,11 +133,11 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
     setState({
       ...state,
       seconds: 0,
-      audios: [],
       recording: false,
-      medianotFound: false,
       time: initialTime,
+      medianotFound: false,
       audioBlob: emptyBlob,
+      audioData: initState.audioData
     });
   };
 
@@ -153,10 +147,8 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
     // generate video url from blob
     const audioURL = window.URL.createObjectURL(blob);
     // append videoURL to list of saved videos for rendering
-    const audios = [audioURL];
     setState({
       ...state,
-      audios,
       audioBlob: blob,
       audioData: {
         blob: blob,
