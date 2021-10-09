@@ -26,6 +26,8 @@ export type RenderProps = {
   reset: Action;
   resume: Action;
   data: AudioData;
+  paused?: boolean;
+  recording?: boolean;
   props?: { [key: string]: any };
 };
 
@@ -112,20 +114,20 @@ export default class Recorder extends Component<Props, State> {
         }
       };
     } else {
-      this.setState({ medianotFound: true });
+      this.setState({ ...this.state, medianotFound: true });
     }
   }
 
   handleAudioPause = () => {
     clearInterval(this.timer);
     this.mediaRecorder.pause();
-    this.setState({ pauseRecord: true });
+    this.setState({ ...this.state, pauseRecord: true });
   };
 
   handleAudioStart = () => {
     this.startTimer();
     this.mediaRecorder.resume();
-    this.setState({ pauseRecord: false });
+    this.setState({ ...this.state, pauseRecord: false });
   };
 
   startTimer() {
@@ -135,8 +137,9 @@ export default class Recorder extends Component<Props, State> {
   countDown() {
     let seconds = this.state.seconds + 1;
     this.setState({
-      time: this.secondsToTime(seconds),
+      ...this.state,
       seconds: seconds,
+      time: this.secondsToTime(seconds),
     });
   }
 
@@ -164,18 +167,20 @@ export default class Recorder extends Component<Props, State> {
     this.mediaRecorder.start(10);
     this.startTimer();
     // say that we're recording
-    this.setState({ recording: true });
+    this.setState({ ...this.state, recording: true });
   };
 
   stopRecording = () => {
     clearInterval(this.timer);
     this.setState({
+      ...this.state,
+      seconds: 0,
       time: this.initialTime,
     });
     // stop the recorder
     this.mediaRecorder.stop();
     // say that we're not recording
-    this.setState({ recording: false, pauseRecord: false });
+    this.setState({ ...this.state, recording: false, pauseRecord: false });
     // save the video to memory
     this.saveAudio();
   };
@@ -186,6 +191,7 @@ export default class Recorder extends Component<Props, State> {
     }
     this.setState(
       {
+        ...this.state,
         seconds: 0,
         audios: [],
         recording: false,
@@ -204,11 +210,8 @@ export default class Recorder extends Component<Props, State> {
     const blob = new Blob(this.chunks, { type: 'audio/*' });
     // generate video url from blob
     const audioURL = window.URL.createObjectURL(blob);
-    // append videoURL to list of saved videos for rendering
-    const audios = [audioURL];
     this.setState({
-      audios,
-      audioBlob: blob,
+      ...this.state,
       audioData: {
         blob: blob,
         url: audioURL,
@@ -227,7 +230,7 @@ export default class Recorder extends Component<Props, State> {
 
   render() {
     const Render = this.props.Render;
-    const { medianotFound, time, audioData } = this.state;
+    const { medianotFound, time, audioData, recording, pauseRecord } = this.state;
 
     return (
       <div className=''>
@@ -235,7 +238,9 @@ export default class Recorder extends Component<Props, State> {
           <Render
             time={time}
             data={audioData}
-            props={this.props.props}
+            paused={pauseRecord}
+            recording={recording}
+            {...this.props.props}
             reset={this.handleReset}
             stop={this.stopRecording}
             start={this.startRecording}

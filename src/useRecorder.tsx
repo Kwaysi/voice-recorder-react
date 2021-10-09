@@ -31,6 +31,7 @@ type Props = {
 };
 
 export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
+  const [time, setTime] = useState(initialTime);
   const [state, setState] = useState<State>(initState);
 
   useEffect(() => {
@@ -80,9 +81,9 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
 
   const countDown = () => {
     let seconds = state.seconds + 1;
+    setTime(secondsToTime(seconds));
     setState({
       ...state,
-      time: secondsToTime(seconds),
       seconds: seconds,
     });
   };
@@ -117,12 +118,9 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
 
   const stopRecording = () => {
     clearInterval(timer);
-    setState({
-      ...state,
-      time: initialTime,
-    });
+    setTime(initialTime);
     mediaRecorder.stop();
-    setState({ ...state, recording: false, pauseRecord: false });
+    setState({ ...state, seconds: 0, recording: false, pauseRecord: false });
     saveAudio();
   };
 
@@ -130,14 +128,14 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
     if (state.recording) {
       stopRecording();
     }
+    setTime(initialTime);
     setState({
       ...state,
       seconds: 0,
       recording: false,
-      time: initialTime,
       medianotFound: false,
       audioBlob: emptyBlob,
-      audioData: initState.audioData
+      audioData: initState.audioData,
     });
   };
 
@@ -154,18 +152,20 @@ export default function useRecorder({ mimeTypeToUseWhenRecording }: Props) {
         blob: blob,
         url: audioURL,
         chunks: chunks,
-        duration: state.time,
+        duration: time,
       },
     });
   };
 
   return {
-    time: state.time,
+    time: time,
     reset: handleReset,
     stop: stopRecording,
     data: state.audioData,
     start: startRecording,
     pause: handleAudioPause,
     resume: handleAudioStart,
+    paused: state.pauseRecord,
+    recording: state.recording,
   };
 }
