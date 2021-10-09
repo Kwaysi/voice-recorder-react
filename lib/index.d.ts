@@ -21,6 +21,8 @@ export declare type RenderProps = {
     reset: Action;
     resume: Action;
     data: AudioData;
+    paused?: boolean;
+    recording?: boolean;
     props?: {
         [key: string]: any;
     };

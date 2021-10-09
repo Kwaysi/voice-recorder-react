@@ -1,1 +1,1 @@
-{"version":3,"file":"useRecorder.d.ts","sourceRoot":"","sources":["../src/useRecorder.tsx"],"names":[],"mappings":"AA4BA,aAAK,KAAK,GAAG;IACX,0BAA0B,EAAE,MAAM,GAAG,IAAI,CAAC;CAC3C,CAAC;AAEF,MAAM,CAAC,OAAO,UAAU,WAAW,CAAC,EAAE,0BAA0B,EAAE,EAAE,KAAK;;;;;;;;EAkJxE"}
+{"version":3,"file":"useRecorder.d.ts","sourceRoot":"","sources":["../src/useRecorder.tsx"],"names":[],"mappings":"AA4BA,aAAK,KAAK,GAAG;IACX,0BAA0B,CAAC,EAAE,MAAM,CAAC;CACrC,CAAC;AAEF,MAAM,CAAC,OAAO,UAAU,WAAW,CAAC,EAAE,0BAA0B,EAAE,EAAE,KAAK;;;;;;;;;;;;;;EA0IxE"}
