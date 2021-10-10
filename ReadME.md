@@ -28,10 +28,6 @@ The following props are passed by both hooks and Component
 
 Please refer to the demo to understand better.
 
-# Usage
-
-This component can be used as hooks or render props
-
 ## Hooks Usage
 
 Please refer to the demo for a working example
