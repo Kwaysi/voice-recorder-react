@@ -12,7 +12,7 @@ export declare type AudioData = {
     chunks: Blob[];
     duration: Time;
 };
-export declare type RenderProps = {
+export declare type RecorderProps = {
     time: Time;
     stop: Action;
     start: Action;
@@ -22,6 +22,7 @@ export declare type RenderProps = {
     data: AudioData;
     paused: boolean;
     recording: boolean;
+    hasRecorder: boolean;
 };
 declare type MainRecorderProps = {
     [key: string]: any;
@@ -34,35 +35,31 @@ declare type Props = {
     handleReset?: (e: State) => void;
     handleAudioStop?: (d: AudioData) => void;
     mimeTypeToUseWhenRecording?: string | null;
-    Render: (props: RenderProps & MainRecorderProps) => JSX.Element;
+    Render: (props: RecorderProps & MainRecorderProps) => JSX.Element;
 };
 export declare type State = {
     time: Time;
     seconds: number;
     audioBlob: Blob;
+    paused: boolean;
     recording: boolean;
-    pauseRecord: boolean;
     audioData: AudioData;
     medianotFound: boolean;
 };
 export default class Recorder extends Component<Props, State> {
     private timer;
     private chunks;
+    private stream;
     private emptyBlob;
     private mediaRecorder;
     private initialTime;
     constructor(props: Props);
-    componentDidMount(): Promise<void>;
+    initRecorder(): Promise<boolean>;
     handleAudioPause: () => void;
     handleAudioStart: () => void;
     startTimer(): void;
     countDown(): void;
-    secondsToTime(secs: number): {
-        h: number;
-        m: number;
-        s: number;
-    };
-    startRecording: () => void;
+    startRecording(): Promise<void>;
     stopRecording: () => void;
     handleReset: () => void;
     saveAudio(): void;

@@ -1,14 +1,16 @@
 import { State } from '.';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import { secondsToTime } from './utils';
 
 const emptyBlob = new Blob() || '';
+const emptyStream = new MediaStream();
 const initialTime = { h: 0, m: 0, s: 0 };
 
-const initState: State = {
+const initState: State & { stream: MediaStream } = {
   time: initialTime,
   seconds: 0,
   recording: false,
-  pauseRecord: false,
+  paused: false,
   medianotFound: false,
   audioBlob: emptyBlob,
   audioData: {
@@ -17,6 +19,7 @@ const initState: State = {
     blob: emptyBlob,
     duration: initialTime,
   },
+  stream: emptyStream,
 };
 
 let timer!: any;
@@ -32,10 +35,10 @@ type Props = {
 export default function useRecorder(props?: Props) {
   const [, sF] = useState({});
   const dataRef = useRef(initState);
-
+  const { paused, recording, stream, medianotFound, audioData, time } = dataRef.current;
   const updatState = () => sF({});
 
-  useEffect(() => {
+  const initRecorder = async () => {
     // @ts-ignore
     navigator.getUserMedia =
       // @ts-ignore
@@ -48,50 +51,55 @@ export default function useRecorder(props?: Props) {
       navigator.webkitGetUserMedia;
 
     if (navigator.mediaDevices) {
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        if (props) {
-          const { mimeTypeToUseWhenRecording = '' } = props;
-          mediaRecorder = new MediaRecorder(stream, {
-            mimeType: mimeTypeToUseWhenRecording,
-          });
-        } else {
-          mediaRecorder = new MediaRecorder(stream);
+      dataRef.current.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      if (props) {
+        const { mimeTypeToUseWhenRecording = '' } = props;
+        mediaRecorder = new MediaRecorder(dataRef.current.stream, {
+          mimeType: mimeTypeToUseWhenRecording,
+        });
+      } else {
+        mediaRecorder = new MediaRecorder(dataRef.current.stream);
+      }
+      chunks = [];
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          chunks.push(e.data);
         }
-        chunks = [];
-        mediaRecorder.ondataavailable = (e) => {
-          if (e.data && e.data.size > 0) {
-            chunks.push(e.data);
-          }
-        };
-      });
+      };
+      return true;
     } else {
       dataRef.current = {
         ...dataRef.current,
         medianotFound: true,
       };
       updatState();
+      return false;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   const handleAudioPause = () => {
-    clearInterval(timer);
-    mediaRecorder.pause();
-    dataRef.current = {
-      ...dataRef.current,
-      pauseRecord: true,
-    };
-    updatState();
+    if (!paused) {
+      clearInterval(timer);
+      mediaRecorder.pause();
+      dataRef.current = {
+        ...dataRef.current,
+        paused: true,
+      };
+      updatState();
+    }
   };
 
   const handleAudioStart = () => {
-    startTimer();
-    mediaRecorder.resume();
-    dataRef.current = {
-      ...dataRef.current,
-      pauseRecord: false,
-    };
-    updatState();
+    if (paused) {
+      startTimer();
+      mediaRecorder.resume();
+      dataRef.current = {
+        ...dataRef.current,
+        paused: false,
+      };
+      updatState();
+    }
   };
 
   const countDown = () => {
@@ -104,50 +112,45 @@ export default function useRecorder(props?: Props) {
     updatState();
   };
 
-  const secondsToTime = (secs: number) => {
-    let hours = Math.floor(secs / (60 * 60));
-
-    let divisor_for_minutes = secs % (60 * 60);
-    let minutes = Math.floor(divisor_for_minutes / 60);
-
-    let divisor_for_seconds = divisor_for_minutes % 60;
-    let seconds = Math.ceil(divisor_for_seconds);
-
-    let obj = {
-      h: hours,
-      m: minutes,
-      s: seconds,
-    };
-    return obj;
-  };
-
   const startTimer = () => {
     timer = setInterval(countDown, 1000);
   };
 
-  const startRecording = () => {
-    chunks = [];
-    mediaRecorder.start(10);
-    startTimer();
-    dataRef.current = {
-      ...dataRef.current,
-      recording: true,
-    };
-    updatState();
+  const startRecording = async () => {
+    if (!recording) {
+      const isReady = await initRecorder();
+      if (isReady) {
+        chunks = [];
+        mediaRecorder.start(10);
+        startTimer();
+        dataRef.current = {
+          ...dataRef.current,
+          recording: true,
+        };
+        updatState();
+      }
+    }
   };
 
   const stopRecording = () => {
-    clearInterval(timer);
-    mediaRecorder.stop();
-    dataRef.current = {
-      ...dataRef.current,
-      pauseRecord: false,
-      recording: false,
-      seconds: 0,
-      time: initialTime,
-    };
-    updatState();
-    saveAudio();
+    if (recording) {
+      clearInterval(timer);
+      mediaRecorder.stop();
+      dataRef.current = {
+        ...dataRef.current,
+        paused: false,
+        recording: false,
+        seconds: 0,
+        time: initialTime,
+      };
+      saveAudio();
+      stream.getTracks().forEach(function (track) {
+        if (track.readyState === 'live') {
+          track.stop();
+        }
+      });
+      updatState();
+    }
   };
 
   const handleReset = () => {
@@ -186,14 +189,15 @@ export default function useRecorder(props?: Props) {
   };
 
   return {
+    time,
+    paused,
+    recording,
+    data: audioData,
     reset: handleReset,
     stop: stopRecording,
     start: startRecording,
     pause: handleAudioPause,
     resume: handleAudioStart,
-    time: dataRef.current.time,
-    data: dataRef.current.audioData,
-    paused: dataRef.current.pauseRecord,
-    recording: dataRef.current.recording,
+    hasRecorder: !medianotFound,
   };
 }

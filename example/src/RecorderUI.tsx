@@ -1,4 +1,4 @@
-import { RenderProps } from './lib';
+import { RecorderProps } from './lib';
 import { useEffect, useRef, useState } from 'react';
 
 // Recorder UI component
@@ -11,7 +11,8 @@ export default function RecorderUI({
   resume,
   paused,
   recording,
-}: RenderProps) {
+  hasRecorder,
+}: RecorderProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [hasRecording, setHasRecording] = useState(false);
 
