@@ -1,6 +1,6 @@
 {
   "name": "voice-recorder-react",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Voice recorder component for react",
   "main": "lib/index.js",
   "types": "lib",
@@ -8,15 +8,23 @@
     "build": "tsc -p ."
   },
   "keywords": [
+    "mic",
     "React",
+    "audio",
+    "voice",
+    "recorder",
+    "record.js",
     "recording",
     "Voice recoder",
+    "audio recorder",
+    "Media recorder",
     "react-voice-recorder"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/Kwaysi/voice-recorder-react"
   },
+  "homepage": "https://codesandbox.io/s/prod-star-sxndo",
   "author": "Kilson David",
   "license": "ISC",
   "devDependencies": {

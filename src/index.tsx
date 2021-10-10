@@ -165,7 +165,6 @@ export default class Recorder extends Component<Props, State> {
     // start recorder with 10ms buffer
     this.mediaRecorder.start(10);
     this.startTimer();
-    // say that we're recording
     this.setState({ recording: true });
   };
 
