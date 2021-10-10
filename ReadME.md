@@ -25,6 +25,7 @@ The following props are passed by both hooks and Component
 | paused | false | indicates if the current recording is paused |
 | recording | false | indicates if there is an ongoing recording |
 | props | '{}' | This is unique only to the component usage. It accepts additional props to pass to the sub component |
+| hasRecorder | true | If you try to record and there are no media devices found this will change to false |
 
 Please refer to the demo to understand better.
 
