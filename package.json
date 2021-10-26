@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "types": "lib",
   "scripts": {
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "minify": "uglifyjs --compress ./lib/index.js"
   },
   "keywords": [
     "mic",
